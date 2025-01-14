@@ -19,11 +19,11 @@ def get_all_data():
 
     for i in range(0, len(all), 6):
         d = {
-            "group": all[i+1].text,
-            "para": all[i+2].text,
-            "rasp": all[i+3].text,
+            "group":  all[i+1].text,
+            "para":   all[i+2].text,
+            "rasp":   all[i+3].text,
             "zamena": all[i+4].text,
-            "aud": all[i+4].text,
+            "aud":    all[i+5].text,
         }
         parsed = parsed + [d]
 

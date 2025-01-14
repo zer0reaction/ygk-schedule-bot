@@ -1,8 +1,9 @@
 from telebot import TeleBot
 from telebot.types import InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from creds import token
-from web import *
 from database import *
+from web import *
+from schedule import *
 
 bot = TeleBot(token=token, parse_mode="HTML")
 groups = get_groups()
@@ -13,6 +14,8 @@ for group in groups:
 
 greeting_text="Выберите группу из списка:\n\nНИКАКОЙ ГАРАНТИИ ПРАВИЛЬНОСТИ ДАННЫХ И РАБОТОСПОСОБНОСТИ БОТА НЕ ПРЕДОСТАВЛЯЕТСЯ"
 user_already_in_db_text="Вы уже в базе данных.\nИспользуйте /reset для сброса данных о себе"
+user_successfully_added_text="Вы были успешно удалены из базы данных. Для продожения введите /start"
+user_not_in_db_text="Вы не в базе данных"
 
 # @TODO
 def send_current_schedule(id: int):
@@ -33,9 +36,9 @@ def reset(message):
 
     if check_user_existence(id):
         delete_user(id)
-        bot.send_message(chat_id=id, text="Вы были успешно удалены из базы данных. Для продожения введите /start", 
+        bot.send_message(chat_id=id, text=user_successfully_added_text,
                          reply_markup=ReplyKeyboardRemove())
-    else: bot.send_message(chat_id=id, text="Вы не в базе данных")
+    else: bot.send_message(chat_id=id, text=user_not_in_db_text)
 
 @bot.message_handler()
 def message_handler(message):
