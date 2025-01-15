@@ -1,56 +1,71 @@
 from telebot import TeleBot
-from telebot.types import InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from creds import token
-from database import *
-from web import *
-from schedule import *
+from database import check_user_existence, get_groups, delete_user, add_user
+from schedule import get_week_data, get_day_schedule_text
 
 bot = TeleBot(token=token, parse_mode="HTML")
 groups = get_groups()
 
-group_buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-for group in groups:
-    group_buttons.add(InlineKeyboardButton(group[1]))
+def register(telegram_id: int):
+    buttons = InlineKeyboardMarkup()
+    text = "Выберите группу из списка:"
 
-greeting_text="Выберите группу из списка:\n\nНИКАКОЙ ГАРАНТИИ ПРАВИЛЬНОСТИ ДАННЫХ И РАБОТОСПОСОБНОСТИ БОТА НЕ ПРЕДОСТАВЛЯЕТСЯ"
-user_already_in_db_text="Вы уже в базе данных.\nИспользуйте /reset для сброса данных о себе"
-user_successfully_added_text="Вы были успешно удалены из базы данных. Для продожения введите /start"
-user_not_in_db_text="Вы не в базе данных"
+    for group in groups:
+        buttons.add(InlineKeyboardButton(text=group[1], 
+                                         callback_data="add_"+str(group[0])))
 
-# @TODO
-def send_current_schedule(id: int):
-    markup=ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(InlineKeyboardButton(text="Расписание"))
-    return bot.send_message(chat_id=id, text="placeholder", reply_markup=markup).id
+    bot.send_message(chat_id=telegram_id, text=text, reply_markup=buttons)
+
+def send_schedule(telegram_id: int):
+    buttons = InlineKeyboardMarkup()
+    text = get_day_schedule_text(get_week_data(1, groups), "mon", "ch")
+    buttons.add(
+        InlineKeyboardButton(text="Числитель", callback_data="ch"),
+        InlineKeyboardButton(text="Знаменатель", callback_data="zn"),
+    )
+    bot.send_message(chat_id=telegram_id, text=text, reply_markup=buttons)
+
+def update_schedule(telegram_id: int, message_id: int):
+    buttons = InlineKeyboardMarkup()
+    text = get_day_schedule_text(get_week_data(1, groups), "mon", "ch")
+    buttons.add(
+        InlineKeyboardButton(text="Числитель", callback_data="ch"),
+        InlineKeyboardButton(text="Знаменатель", callback_data="zn"),
+    )
+    bot.edit_message_text(chat_id=telegram_id, message_id=message_id, 
+                          text=text, reply_markup=buttons)
 
 @bot.message_handler(commands=["start"])
-def start(message):
-    id = message.from_user.id
+def start(msg: Message):
+    telegram_id = msg.from_user.id
+    user_exists = check_user_existence(telegram_id)
 
-    if check_user_existence(id): send_current_schedule(id)
-    else: bot.send_message(chat_id=id, text=greeting_text, reply_markup=group_buttons)
+    if user_exists:
+        send_schedule(telegram_id)
+    else:
+        register(telegram_id)
 
 @bot.message_handler(commands=["reset"])
-def reset(message):
-    id = message.from_user.id
+def reset(msg: Message):
+    telegram_id = msg.from_user.id
+    user_exists = check_user_existence(telegram_id)
 
-    if check_user_existence(id):
-        delete_user(id)
-        bot.send_message(chat_id=id, text=user_successfully_added_text,
-                         reply_markup=ReplyKeyboardRemove())
-    else: bot.send_message(chat_id=id, text=user_not_in_db_text)
-
-@bot.message_handler()
-def message_handler(message):
-    id = message.from_user.id
-    text = message.text
-
-    if text == "Расписание" and check_user_existence(id):
-        send_current_schedule(id)
+    if user_exists:
+        delete_user(telegram_id)
+        bot.send_message(chat_id=telegram_id, text="Вы были удалены из базы данных")
     else:
-        for group in groups:
-            if text == group[1]:
-                add_user(id, group[0])
-                send_current_schedule(id)
+        bot.send_message(chat_id=telegram_id, text="Вы не в базе данных")
+
+@bot.callback_query_handler()
+def handle_callbacks(call: CallbackQuery):
+    telegram_id = call.from_user.id
+    message_id = call.message.id
+    data = call.data
+
+    if data.startswith("add_"):
+        group_id = data.split('_')[1]
+        add_user(telegram_id, group_id)
+        update_schedule(telegram_id, message_id)
 
 bot.infinity_polling()
