@@ -23,6 +23,19 @@ def get_day_schedule_text(week_data: list, day: str, week_type: str):
 
     return text
 
+def get_week_schedule_text(group_id: int, groups: list, week_type: str):
+    week_data = get_week_data(group_id, groups)
 
-def get_week_schedule_text(group_id: int, groups: list):
-    ...
+    mon_text = get_day_schedule_text(week_data, "mon", week_type)
+    tue_text = get_day_schedule_text(week_data, "tue", week_type)
+    wed_text = get_day_schedule_text(week_data, "wed", week_type)
+    thu_text = get_day_schedule_text(week_data, "thu", week_type)
+    fri_text = get_day_schedule_text(week_data, "fri", week_type)
+    sat_text = get_day_schedule_text(week_data, "sat", week_type)
+
+    text = "🗓Понедельник\n{}\n🗓Вторник\n{}\n🗓Среда\n{}\n🗓Четверг\n{}\n🗓Пятница\n{}\n🗓Суббота\n{}".format(mon_text, tue_text, wed_text, thu_text, fri_text, sat_text)
+
+    if week_type == "ch": text = "<b>Числитель</b>\n\n" + text
+    else: text = "<b>Знаменатель</b>\n\n" + text
+
+    return text

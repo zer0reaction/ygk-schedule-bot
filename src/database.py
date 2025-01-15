@@ -34,3 +34,6 @@ def add_user(id: int, group_id: int):
 
 def delete_user(id: int):
     commit("delete from users where telegram_id = {}".format(id))
+
+def get_user_group_id(id: int):
+    return f_one("select * from users where telegram_id = {}".format(id))[1]
