@@ -1,8 +1,9 @@
 from telebot import TeleBot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from creds import token
-from database import check_user_existence, get_groups, delete_user, add_user, get_user_group_id
-from schedule import get_week_data, get_day_schedule_text, get_week_schedule_text
+from database import *
+from schedule import *
+from web import *
 
 bot = TeleBot(token=token, parse_mode="HTML")
 groups = get_groups()
@@ -12,19 +13,33 @@ def register(telegram_id: int):
     text = "Выберите группу из списка:"
 
     for group in groups:
-        buttons.add(InlineKeyboardButton(text=group[1], 
-                                         callback_data="add_"+str(group[0])))
+        buttons.add(InlineKeyboardButton(text=group[1], callback_data="add_"+str(group[0])))
 
     bot.send_message(chat_id=telegram_id, text=text, reply_markup=buttons)
 
-def update_schedule(telegram_id: int, message_id: int, week_type: str):
+def week_schedule(telegram_id: int, message_id: int, week_type: str):
     buttons = InlineKeyboardMarkup()
     text = get_week_schedule_text(get_user_group_id(telegram_id), groups, week_type)
+    
     if week_type == "ch":
         buttons.add(InlineKeyboardButton(text="Знаменатель", callback_data="zn"))
     elif week_type == "zn":
         buttons.add(InlineKeyboardButton(text="Числитель", callback_data="ch"))
 
+    buttons.add(InlineKeyboardButton(text="День с заменой", callback_data="zamena"))
+
+    bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
+
+def day_schedule(telegram_id: int, message_id: int):
+    buttons = InlineKeyboardMarkup()
+
+    html_text=get_html_text()
+    data = get_all_data(html_text)
+    text = get_day_zamena_text(telegram_id, data, get_web_date(html_text))
+
+    buttons.add(InlineKeyboardButton(text="Знаменатель", callback_data="zn"),
+                InlineKeyboardButton(text="Числитель", callback_data="ch"))
+    
     bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
 @bot.message_handler(commands=["start"])
@@ -57,10 +72,13 @@ def handle_callbacks(call: CallbackQuery):
     if data.startswith("add_"):
         group_id = data.split('_')[1]
         add_user(telegram_id, group_id)
-        update_schedule(telegram_id, message_id, "ch")
+        week_schedule(telegram_id, message_id, "ch")
         bot.answer_callback_query(call.id)
     elif data == "ch" or data == "zn":
-        update_schedule(telegram_id, message_id, data)
+        week_schedule(telegram_id, message_id, data)
+        bot.answer_callback_query(call.id)
+    elif data == "zamena":
+        day_schedule(telegram_id, message_id)
         bot.answer_callback_query(call.id)
 
 bot.infinity_polling()

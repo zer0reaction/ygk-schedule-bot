@@ -1,4 +1,5 @@
 import json
+from database import get_user_group_name
 
 def get_week_data(group_id: int, groups: list):
     filename = ""
@@ -37,5 +38,26 @@ def get_week_schedule_text(group_id: int, groups: list, week_type: str):
 
     if week_type == "ch": text = "<b>Числитель</b>\n\n" + text
     else: text = "<b>Знаменатель</b>\n\n" + text
+
+    return text
+
+def get_zamena(telegram_id: int, data: list):
+    group_name = get_user_group_name(telegram_id)
+
+    zamenas = []
+    for item in data:
+        if item["group"] == group_name:
+            zamenas.append(item)
+
+    return zamenas
+
+def get_day_zamena_text(telegram_id: id, data: list, day: str):
+    zamenas = get_zamena(telegram_id, data)
+    text = "<b>" + day + "</b>\n\n"
+
+    if len(zamenas) > 0:
+        for zamena in zamenas:
+            text += "<b>" + zamena["para"] + " [" + zamena["aud"] + "]</b> " + "<i>" + zamena["zamena"] + "</i>"
+    else: text += "На этот день нет замен"
 
     return text

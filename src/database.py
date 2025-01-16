@@ -37,3 +37,7 @@ def delete_user(id: int):
 
 def get_user_group_id(id: int):
     return f_one("select * from users where telegram_id = {}".format(id))[1]
+
+def get_user_group_name(id: int):
+    group_id = get_user_group_id(id)
+    return f_one("select * from groups where group_id = {}".format(group_id))[1]
