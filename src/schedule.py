@@ -57,7 +57,7 @@ def get_day_zamena_text(telegram_id: id, data: list, day: str):
 
     if len(zamenas) > 0:
         for zamena in zamenas:
-            text += "<b>" + zamena["para"] + " [" + zamena["aud"] + "]</b> " + "<i>" + zamena["zamena"] + "</i>"
+            text += "<b>{" + zamena["para"] + "} [" + zamena["aud"] + "]</b> " + "<i>" + zamena["zamena"] + "</i>"
     else: text += "На этот день нет замен"
 
     return text

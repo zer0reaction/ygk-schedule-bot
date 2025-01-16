@@ -17,14 +17,10 @@ def register(telegram_id: int):
 
     bot.send_message(chat_id=telegram_id, text=text, reply_markup=buttons)
 
-def week_schedule(telegram_id: int, message_id: int, week_type: str):
+def week_schedule(telegram_id: int, message_id: int):
     buttons = InlineKeyboardMarkup()
+    week_type = get_web_ch_zn(get_html_text())
     text = get_week_schedule_text(get_user_group_id(telegram_id), groups, week_type)
-    
-    if week_type == "ch":
-        buttons.add(InlineKeyboardButton(text="Знаменатель", callback_data="zn"))
-    elif week_type == "zn":
-        buttons.add(InlineKeyboardButton(text="Числитель", callback_data="ch"))
 
     buttons.add(InlineKeyboardButton(text="День с заменой", callback_data="zamena"))
 
@@ -37,8 +33,7 @@ def day_schedule(telegram_id: int, message_id: int):
     data = get_all_data(html_text)
     text = get_day_zamena_text(telegram_id, data, get_web_date(html_text))
 
-    buttons.add(InlineKeyboardButton(text="Знаменатель", callback_data="zn"),
-                InlineKeyboardButton(text="Числитель", callback_data="ch"))
+    buttons.add(InlineKeyboardButton(text="Неделя", callback_data="week"))
     
     bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
@@ -47,9 +42,7 @@ def start(msg: Message):
     telegram_id = msg.from_user.id
     user_exists = check_user_existence(telegram_id)
 
-    if user_exists:
-        ...
-    else:
+    if not user_exists:
         register(telegram_id)
 
 @bot.message_handler(commands=["reset"])
@@ -72,10 +65,10 @@ def handle_callbacks(call: CallbackQuery):
     if data.startswith("add_"):
         group_id = data.split('_')[1]
         add_user(telegram_id, group_id)
-        week_schedule(telegram_id, message_id, "ch")
+        week_schedule(telegram_id, message_id)
         bot.answer_callback_query(call.id)
-    elif data == "ch" or data == "zn":
-        week_schedule(telegram_id, message_id, data)
+    elif data == "week":
+        week_schedule(telegram_id, message_id)
         bot.answer_callback_query(call.id)
     elif data == "zamena":
         day_schedule(telegram_id, message_id)
