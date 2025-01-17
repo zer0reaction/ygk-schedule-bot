@@ -22,7 +22,7 @@ def week_schedule(telegram_id: int, message_id: int):
     week_type = get_web_ch_zn(get_html_text())
     text = get_week_schedule_text(get_user_group_id(telegram_id), groups, week_type)
 
-    buttons.add(InlineKeyboardButton(text="День с заменой", callback_data="zamena"))
+    buttons.add(InlineKeyboardButton(text="Замены на день", callback_data="zamena"))
 
     bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
@@ -34,7 +34,7 @@ def day_schedule(telegram_id: int, message_id: int):
     text = get_day_zamena_text(telegram_id, data, get_web_date(html_text))
 
     buttons.add(InlineKeyboardButton(text="Неделя", callback_data="week"))
-    
+
     bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
 @bot.message_handler(commands=["start"])
