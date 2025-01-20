@@ -1,27 +1,41 @@
 from sqlite3 import connect
 
 def f_one(query: str):
-    con = connect("db/base.db")
-    cur = con.cursor()
-    cur.execute(query)
-    data = cur.fetchone()
-    con.close()
-    return data
+    try:
+        con = connect("db/base.db")
+        data = con.execute(query).cur.fetchone()
+        con.close()
+        return data
+    except Exception as e:
+        print("Error in database:f_one:")
+        print("    {}".format(e))
+        print("    Query: {}".format(query))
+        return False
 
 def f_all(query: str):
-    con = connect("db/base.db")
-    cur = con.cursor()
-    cur.execute(query)
-    data = cur.fetchall()
-    con.close()
-    return data
+    try:
+        con = connect("db/base.db")
+        data = con.execute(query).fetchall()
+        con.close()
+        return data
+    except Exception as e:
+        print("Error in database:f_all:")
+        print("    {}".format(e))
+        print("    Query: {}".format(query))
+        return False
 
 def commit(query: str):
-    con = connect("db/base.db")
-    cur = con.cursor()
-    cur.execute(query)
-    con.commit()
-    con.close()
+    try:
+        con = connect("db/base.db")
+        con.execute(query)
+        con.commit()
+        con.close()
+        return True
+    except Exception as e:
+        print("Error in database:commit:")
+        print("    {}".format(e))
+        print("    Query: {}".format(query))
+        return False
 
 def get_groups():
     return f_all("select * from groups")
@@ -30,10 +44,10 @@ def check_user_existence(id: int):
     return f_one("select exists(select 1 from users where telegram_id = {})".format(id))[0] == 1
 
 def add_user(id: int, group_id: int):
-    commit("insert into users values ({}, {})".format(id, group_id))
+    return commit("insert into users values ({}, {})".format(id, group_id))
 
 def delete_user(id: int):
-    commit("delete from users where telegram_id = {}".format(id))
+    return commit("delete from users where telegram_id = {}".format(id))
 
 def get_user_group_id(id: int):
     return f_one("select * from users where telegram_id = {}".format(id))[1]
