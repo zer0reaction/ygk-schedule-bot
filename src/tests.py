@@ -2,8 +2,6 @@ from database import *
 from constants import *
 from creds import my_id
 
-print(f_one("select * from users where telegram_id = 0"))
-
 ########## DATABASE TEST ##########
 
 # --- f_one ---
@@ -101,14 +99,31 @@ if (data == ERROR_DATABASE): print("PASSED!\n")
 else: print("FAILED!\n")
 # -------------------
 
-# --- get_user_group ---
+# --- get_user_group_id ---
 print("testing get_user_group with correct input...")
-data = get_user_group(my_id)
-if (data[0] == OK and type(data[1]) == tuple): print("PASSED!\n")
+data = get_user_group_id(my_id)
+if (data[0] == OK and type(data[1]) == int): print("PASSED!\n")
 else: print("FAILED!\n")
 
 print("testing get_user_group with wrong input...")
-data = get_user_group(1)
+data = get_user_group_id(1)
+if (data[0] == ERROR_DATABASE): print("PASSED!\n")
+else: print("FAILED!\n")
+# ---------------------
+
+# --- get_group_row ---
+print("testing get_group_row with correct input...")
+data = get_group_row(1)
+if (data[0] == OK and type(data[1]) == tuple): print("PASSED!\n")
+else: print("FAILED!\n")
+
+print("testing get_group_row with wrong input 1...")
+data = get_group_row(0)
+if (data[0] == ERROR_DATABASE): print("PASSED!\n")
+else: print("FAILED!\n")
+
+print("testing get_group_row with wrong input 1...")
+data = get_group_row("wrong")
 if (data[0] == ERROR_DATABASE): print("PASSED!\n")
 else: print("FAILED!\n")
 # ---------------------

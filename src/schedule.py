@@ -1,63 +1,60 @@
 import json
-from database import get_user_group_name
+from database import get_user_group_id, get_group_row
+from datetime import datetime
+from constants import *
 
-def get_week_data(group_id: int, groups: list):
-    filename = ""
-    for group in groups:
-        if group_id == group[0]: filename = group[2]
-
-    data = []
-    with open("db/groups/" + filename, "r") as json_file:
-        data = json.load(json_file)
-
-    return data
-
-def get_day_schedule_text(week_data: list, day: str, week_type: str):
-    chars = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
+# Returns formatted text for one day (without day name)
+def get_day_schedule_text(week_dict: dict, week_day: str, week_type: str) -> str:
     text = ""
-    day_data = week_data[day][week_type]
-    day_lect = day_data.keys()
+    day_dict = week_dict[week_day][week_type]
+    emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
 
-    for lect in day_lect:
-        text += chars[int(lect)] + " <b>[" + day_data[lect][2] + "]</b> " + \
-            "<i>" + day_data[lect][0] + "</i> (" + day_data[lect][1] + ')\n'
-
-    return text
-
-def get_week_schedule_text(group_id: int, groups: list, week_type: str):
-    week_data = get_week_data(group_id, groups)
-
-    mon_text = get_day_schedule_text(week_data, "mon", week_type)
-    tue_text = get_day_schedule_text(week_data, "tue", week_type)
-    wed_text = get_day_schedule_text(week_data, "wed", week_type)
-    thu_text = get_day_schedule_text(week_data, "thu", week_type)
-    fri_text = get_day_schedule_text(week_data, "fri", week_type)
-    sat_text = get_day_schedule_text(week_data, "sat", week_type)
-
-    text = "🗓Понедельник\n{}\n🗓Вторник\n{}\n🗓Среда\n{}\n🗓Четверг\n{}\n🗓Пятница\n{}\n🗓Суббота\n{}".format(mon_text, tue_text, wed_text, thu_text, fri_text, sat_text)
-
-    if week_type == "ch": text = "<b>Числитель</b>\n\n" + text
-    else: text = "<b>Знаменатель</b>\n\n" + text
+    for day_key in day_dict.keys():
+        text += emojis[int(day_key)]
+        text += " <b>{}</b> ".format(day_dict[day_key][2])
+        text += "<i>{}</i> ".format(day_dict[day_key][0])
+        text += "{}".format(day_dict[day_key][1])
+        text += '\n'
 
     return text
 
-def get_zamena(telegram_id: int, data: list):
-    group_name = get_user_group_name(telegram_id)
+# Returns formatted text of constant schedule
+def get_week_schedule_text(group_id: int, week_type: str) -> str:
+    data = get_group_row(group_id)
+    if data[0] == ERROR_DATABASE:
+        return "Что-то пошло не так..."
 
-    zamenas = []
-    for item in data:
-        if item["group"] == group_name:
-            zamenas.append(item)
+    filename = data[1][2]
 
-    return zamenas
+    week_dict = []
+    with open("./db/groups/" + filename, "r") as json_file:
+        week_dict = json.load(json_file)
 
-def get_day_zamena_text(telegram_id: id, data: list, day: str):
-    zamenas = get_zamena(telegram_id, data)
-    text = "<b>" + day + "</b>\n\n"
+    text = ""
 
-    if len(zamenas) > 0:
-        for zamena in zamenas:
-            text += "<b>{" + zamena["para"] + "} [" + zamena["aud"] + "]</b> " + "<i>" + zamena["zamena"] + "</i>"
-    else: text += "На этот день нет замен"
+    if week_type == "ch":
+        text += "<b>Числитель\n\n</b>"
+    elif week_type == "zn":
+        text += "<b>Знаменатель\n\n</b>"
+
+    text += "Понедельник\n" + get_day_schedule_text(week_dict, "mon", week_type) + '\n'
+    text += "Вторник\n" + get_day_schedule_text(week_dict, "tue", week_type) + '\n'
+    text += "Среда\n" + get_day_schedule_text(week_dict, "wed", week_type) + '\n'
+    text += "Четверг\n" + get_day_schedule_text(week_dict, "thu", week_type) + '\n'
+    text += "Пятница\n" + get_day_schedule_text(week_dict, "fri", week_type) + '\n'
+    text += "Суббота\n" + get_day_schedule_text(week_dict, "sat", week_type)
 
     return text
+
+def get_changed_day_text(date: datetime, week_dict: dict, week_type: str) -> str:
+    day_name = ""
+
+    match date.weekday():
+        case 0: day_name = "mon"
+        case 1: day_name = "tue"
+        case 2: day_name = "wed"
+        case 3: day_name = "thu"
+        case 4: day_name = "fri"
+        case 5: day_name = "sat"
+
+    day_dict = week_dict[day_name][week_type]
