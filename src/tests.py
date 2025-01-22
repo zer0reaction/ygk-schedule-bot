@@ -1,4 +1,5 @@
 from database import *
+from web import *
 from constants import *
 from creds import my_id
 
@@ -125,5 +126,15 @@ else: print("FAILED!\n")
 print("testing get_group_row with wrong input 1...")
 data = get_group_row("wrong")
 if (data[0] == ERROR_DATABASE): print("PASSED!\n")
+else: print("FAILED!\n")
+# ---------------------
+
+
+########## WEB TEST ##########
+
+# --- get_html_text ---
+print("testing get_html_text...")
+data = get_html_text()
+if (data[0] == OK): print("PASSED!\n")
 else: print("FAILED!\n")
 # ---------------------

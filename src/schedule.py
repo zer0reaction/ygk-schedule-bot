@@ -57,4 +57,8 @@ def get_changed_day_text(date: datetime, week_dict: dict, week_type: str) -> str
         case 4: day_name = "fri"
         case 5: day_name = "sat"
 
+    if day_name == "":
+        return "Что-то пошло не так..."
+
     day_dict = week_dict[day_name][week_type]
+    # get changes goes here
