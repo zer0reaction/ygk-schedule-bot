@@ -11,9 +11,9 @@ def get_day_schedule_text(day_dict: dict) -> str:
 
     for day_key in day_dict.keys():
         text += emojis[int(day_key)]
-        text += " <b>{}</b> ".format(day_dict[day_key][2])
+        text += " <b>[{}]</b> ".format(day_dict[day_key][2])
         text += "<i>{}</i> ".format(day_dict[day_key][0])
-        text += "{}".format(day_dict[day_key][1])
+        text += "({})".format(day_dict[day_key][1])
         text += '\n'
 
     return text
@@ -42,12 +42,12 @@ def get_week_schedule_text(group_id: int) -> str:
     elif week_type == "zn":
         text += "<b>Знаменатель</b>\n\n"
 
-    text += "Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
-    text += "Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
-    text += "Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
-    text += "Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
-    text += "Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
-    text += "Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
+    text += "🗓Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
+    text += "🗓Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
+    text += "🗓Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
+    text += "🗓Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
+    text += "🗓Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
+    text += "🗓Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
 
     return text
 
@@ -106,5 +106,5 @@ def get_changed_day_text(group_id: int) -> str:
                 except:
                     return "Что-то пошло не так..."
 
-
-    return get_day_schedule_text(day_dict)
+    text = f"<b>{date.day}.{date.month}.{date.year}</b>\n\n" + get_day_schedule_text(day_dict)
+    return text

@@ -27,7 +27,7 @@ def register(telegram_id: int):
 def week_schedule(telegram_id: int, message_id: int):
     buttons = InlineKeyboardMarkup()
     group_id = get_user_group_id(telegram_id)
-    buttons.add(InlineKeyboardButton(text="Замены на день", callback_data="zamena"))
+    buttons.add(InlineKeyboardButton(text="День с заменами", callback_data="zamena"))
 
     if group_id[0] == ERROR_DATABASE:
         bot.edit_message_text(chat_id=telegram_id, text="Что-то пошло не так...", message_id=message_id)
@@ -51,7 +51,12 @@ def day_schedule(telegram_id: int, message_id: int):
 @bot.message_handler(commands=["start"])
 def start(msg: Message):
     telegram_id = msg.from_user.id
+
     user_exists = check_user_existence(telegram_id)
+    if user_exists[0] == ERROR_DATABASE:
+        bot.send_message(chat_id=telegram_id, text="Произошла ошибка")
+        return
+    else: user_exists = user_exists[1]
 
     if not user_exists:
         register(telegram_id)
@@ -59,7 +64,12 @@ def start(msg: Message):
 @bot.message_handler(commands=["reset"])
 def reset(msg: Message):
     telegram_id = msg.from_user.id
+
     user_exists = check_user_existence(telegram_id)
+    if user_exists[0] == ERROR_DATABASE:
+        bot.send_message(chat_id=telegram_id, text="Произошла ошибка")
+        return
+    else: user_exists = user_exists[1]
 
     if user_exists:
         delete_user(telegram_id)
