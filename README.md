@@ -21,6 +21,24 @@
 token="ваш токен"
 ```
 
+Также Вам потребуется файл базы данных db/base.db
+Комманды для создания таблиц:
+```sql
+CREATE TABLE "groups" (
+	"group_id"	INTEGER NOT NULL,
+	"group_name"	TEXT NOT NULL,
+	"file_name"	TEXT NOT NULL,
+	PRIMARY KEY("group_id" AUTOINCREMENT)
+);
+
+CREATE TABLE "users" (
+	"telegram_id"	INTEGER NOT NULL,
+	"group"	INTEGER NOT NULL,
+	PRIMARY KEY("telegram_id"),
+	FOREIGN KEY("group") REFERENCES "groups"("group_id")
+);
+```
+
 Linux:
 ```console
 cd ygk-schedule-bot
