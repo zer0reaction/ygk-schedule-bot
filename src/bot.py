@@ -84,10 +84,18 @@ def handle_callbacks(call: CallbackQuery):
     data = call.data
 
     if data.startswith("add_"):
-        group_id = data.split('_')[1]
-        add_user(telegram_id, group_id)
-        week_schedule(telegram_id, message_id)
-        bot.answer_callback_query(call.id)
+        user_exists = check_user_existence(telegram_id)
+        if user_exists[0] == ERROR_DATABASE:
+            bot.edit_message_text(chat_id=telegram_id, text="Что-то пошло не так...", message_id=message_id)
+        else: user_exists = user_exists[1]
+
+        if not user_exists:
+            add_user(telegram_id, int(call.data.split('_')[1]))
+            week_schedule(telegram_id, message_id)
+            bot.answer_callback_query(call.id)
+        else:
+            bot.edit_message_text(chat_id=telegram_id, text="Вы уже в базе данных", message_id=message_id)
+            bot.answer_callback_query(call.id)
     elif data == "week":
         week_schedule(telegram_id, message_id)
         bot.answer_callback_query(call.id)
