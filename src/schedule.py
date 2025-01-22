@@ -1,5 +1,6 @@
 import json
 from database import get_user_group_id, get_group_row
+from web import get_html_text, get_web_date, get_all_changes
 from datetime import datetime
 from constants import *
 
@@ -46,9 +47,38 @@ def get_week_schedule_text(group_id: int, week_type: str) -> str:
 
     return text
 
-def get_changed_day_text(date: datetime, week_dict: dict, week_type: str) -> str:
-    day_name = ""
+def get_changed_day_text(group_id: int, week_type: str) -> str:
+    html_text = get_html_text()
+    if html_text[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    else: html_text = html_text[1]
 
+    date = get_web_date(html_text)
+    changes = get_all_changes(html_text)
+
+    day_name = ""
+    match date.weekday():
+        case 0: day_name = "mon"
+        case 1: day_name = "tue"
+        case 2: day_name = "wed"
+        case 3: day_name = "thu"
+        case 4: day_name = "fri"
+        case 5: day_name = "sat"
+
+    if day_name == "":
+        return "Что-то пошло не так..."
+
+    group_row = get_group_row(group_id)
+    if group_row[0] == ERROR_DATABASE:
+        return "Что-то пошло не так..."
+    group_row = group_row[1]
+
+    week_dict = []
+    with open("./db/groups/" + group_row[2], "r") as json_file:
+        week_dict = json.load(json_file)
+
+    day_dict = week_dict[day_name][week_type]
+    day_name = ""
     match date.weekday():
         case 0: day_name = "mon"
         case 1: day_name = "tue"
@@ -61,4 +91,41 @@ def get_changed_day_text(date: datetime, week_dict: dict, week_type: str) -> str
         return "Что-то пошло не так..."
 
     day_dict = week_dict[day_name][week_type]
-    # get changes goes here
+
+    for change in changes:
+        if change["group_name"] == group_row[1]:
+            pairs_string = change["pair_number"]
+            pair_numbers = []
+
+            if ',' in pairs_string:
+                pair_numbers = pairs_string.split(',')
+            elif '-' in pairs_string:
+                split = pairs_string.split('-')
+                for i in range(int(split[0]), int(split[1]) + 1):
+                    pair_numbers.append(str(i))
+            else:
+                pair_numbers.append(pairs_string)
+
+            # "1": ["Изображение архитектурного замысла при проектировании", "Жарова Н.И.", "Б508"],
+            for pair_number in pair_numbers:
+                try:
+                    day_dict[pair_number][0] = change["changed_to"]
+                    day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
+                    day_dict[pair_number][2] = change["classroom"]
+                except:
+                    return "Что-то пошло не так..."
+
+    emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
+
+    text = f"{date.day}.{date.month}.{date.year}\n\n"
+
+    for day_key in day_dict.keys():
+        text += emojis[int(day_key)]
+        text += " <b>{}</b> ".format(day_dict[day_key][2])
+        text += "<i>{}</i> ".format(day_dict[day_key][0])
+        text += "{}".format(day_dict[day_key][1])
+        text += '\n'
+
+    return text
+
+print(get_changed_day_text(1, "zn"))

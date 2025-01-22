@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from constants import *
 import requests
-import datetime
+from datetime import datetime
 
 # Get the raw html text
 def get_html_text():
@@ -41,23 +41,25 @@ def get_web_date(html_text):
 
     date_list = text.split()[3:6]
 
-    date = datetime
-    date.day = int(date_list[0])
-    date.year = int(date_list[2])
+    day = int(date_list[0])
+    year = int(date_list[2])
+    month = 0
 
     match date_list[1]:
-        case "января":      date.month = 0
-        case "февраля":     date.month = 1
-        case "марта":       date.month = 2
-        case "апреля":      date.month = 3
-        case "мая":         date.month = 4
-        case "июня":        date.month = 5
-        case "июля":        date.month = 6
-        case "августа":     date.month = 7
-        case "сентября":    date.month = 8
-        case "октября":     date.month = 9
-        case "ноября":      date.month = 10
-        case "декабря":     date.month = 11
+        case "января":      month = 1
+        case "февраля":     month = 2
+        case "марта":       month = 3
+        case "апреля":      month = 4
+        case "мая":         month = 5
+        case "июня":        month = 6
+        case "июля":        month = 7
+        case "августа":     month = 8
+        case "сентября":    month = 9
+        case "октября":     month = 10
+        case "ноября":      month = 11
+        case "декабря":     month = 12
+
+    date = datetime(year, month, day, 0, 0, 0)
 
     return date
 
