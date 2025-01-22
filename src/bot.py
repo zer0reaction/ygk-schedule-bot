@@ -1,3 +1,4 @@
+from sys import exit
 from telebot import TeleBot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from creds import token
@@ -6,7 +7,13 @@ from schedule import *
 from web import *
 
 bot = TeleBot(token=token, parse_mode="HTML")
+
 groups = get_groups()
+if groups[0] == ERROR_DATABASE:
+    print("Error getting groups!")
+    exit(1)
+else:
+    groups = groups[1]
 
 def register(telegram_id: int):
     buttons = InlineKeyboardMarkup()
@@ -19,23 +26,27 @@ def register(telegram_id: int):
 
 def week_schedule(telegram_id: int, message_id: int):
     buttons = InlineKeyboardMarkup()
-    week_type = get_web_ch_zn(get_html_text())
-    text = get_week_schedule_text(get_user_group_id(telegram_id), groups, week_type)
-
+    group_id = get_user_group_id(telegram_id)
     buttons.add(InlineKeyboardButton(text="Замены на день", callback_data="zamena"))
 
-    bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
+    if group_id[0] == ERROR_DATABASE:
+        bot.edit_message_text(chat_id=telegram_id, text="Что-то пошло не так...", message_id=message_id)
+    else:
+        group_id = group_id[1]
+        text = get_week_schedule_text(group_id)
+        bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
 def day_schedule(telegram_id: int, message_id: int):
     buttons = InlineKeyboardMarkup()
-
-    html_text=get_html_text()
-    data = get_all_data(html_text)
-    text = get_day_zamena_text(telegram_id, data, get_web_date(html_text))
-
+    group_id = get_user_group_id(telegram_id)
     buttons.add(InlineKeyboardButton(text="Неделя", callback_data="week"))
 
-    bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
+    if group_id[0] == ERROR_DATABASE:
+        bot.edit_message_text(chat_id=telegram_id, text="Что-то пошло не так...", message_id=message_id)
+    else:
+        group_id = group_id[1]
+        text = get_changed_day_text(group_id)
+        bot.edit_message_text(chat_id=telegram_id, text=text, message_id=message_id, reply_markup=buttons)
 
 @bot.message_handler(commands=["start"])
 def start(msg: Message):

@@ -64,6 +64,10 @@ def add_user(telegram_id: int, group_id: int) -> int:
 def delete_user(telegram_id: int) -> int:
     return commit(f"delete from users where telegram_id = {telegram_id}")
 
+# Get all the group rows
+def get_groups():
+    return f_all(f"select * from groups")
+
 # Gets the group_id by telegram_id
 def get_user_group_id(telegram_id: int) -> tuple:
     data = f_one(f"select * from users where telegram_id = {telegram_id}")
