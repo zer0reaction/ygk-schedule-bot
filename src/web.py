@@ -64,7 +64,7 @@ def get_web_date(html_text):
     return date
 
 # Get if the displayed changes are for chislitel or znamenatel
-def get_web_ch_zn(html_text):
+def get_web_week_type(html_text):
     soup = BeautifulSoup(html_text, "html.parser")
     text = soup.find_all("div")[3].text
 
