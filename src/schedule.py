@@ -127,5 +127,3 @@ def get_changed_day_text(group_id: int, week_type: str) -> str:
         text += '\n'
 
     return text
-
-print(get_changed_day_text(1, "zn"))
