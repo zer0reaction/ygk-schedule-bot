@@ -69,5 +69,8 @@ def get_web_week_type(html_text):
     text = soup.find_all("div")[3].text
 
     if "Числитель" in text:
-        return "ch"
-    else: return "zn"
+        return (OK, "ch")
+    elif "Знаменатель" in text:
+        return (OK, "zn")
+    else:
+        return (ERROR_WEB, )

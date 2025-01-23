@@ -36,6 +36,10 @@ def get_week_schedule_text(group_id: int) -> str:
 
     text = ""
     week_type = get_web_week_type(html_text)
+    if week_type[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    else:
+        week_type = week_type[1]
 
     if week_type == "ch":
         text += "<b>Числитель</b>\n\n"
@@ -59,7 +63,12 @@ def get_changed_day_text(group_id: int) -> str:
 
     date = get_web_date(html_text)
     changes = get_all_changes(html_text)
+
     week_type = get_web_week_type(html_text)
+    if week_type[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    else:
+        week_type = week_type[1]
 
     group_row = get_group_row(group_id)
     if group_row[0] == ERROR_DATABASE:
