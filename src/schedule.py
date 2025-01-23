@@ -1,6 +1,6 @@
 import json
 from database import get_user_group_id, get_group_row
-from web import get_html_text, get_web_date, get_all_changes, get_web_week_type
+from web import get_html_text_first, get_html_text_second, get_web_date, get_all_changes, get_web_week_type
 from datetime import datetime
 from constants import *
 
@@ -29,13 +29,16 @@ def get_week_schedule_text(group_id: int) -> str:
     with open("./db/groups/" + filename, "r") as json_file:
         week_dict = json.load(json_file)
 
-    html_text = get_html_text()
-    if html_text[0] == ERROR_WEB:
+    html_text_first = get_html_text_first()
+    html_text_second = get_html_text_second()
+    if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-    else: html_text = html_text[1]
+    else:
+        html_text_first = html_text_first[1]
+        html_text_second = html_text_second[1]
 
     text = ""
-    week_type = get_web_week_type(html_text)
+    week_type = get_web_week_type(html_text_first)
     if week_type[0] == ERROR_WEB:
         return "Что-то пошло не так..."
     else:
@@ -56,15 +59,18 @@ def get_week_schedule_text(group_id: int) -> str:
     return text
 
 def get_changed_day_text(group_id: int) -> str:
-    html_text = get_html_text()
-    if html_text[0] == ERROR_WEB:
+    html_text_first = get_html_text_first()
+    html_text_second = get_html_text_second()
+    if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-    else: html_text = html_text[1]
+    else:
+        html_text_first = html_text_first[1]
+        html_text_second = html_text_second[1]
 
-    date = get_web_date(html_text)
-    changes = get_all_changes(html_text)
+    date = get_web_date(html_text_first)
+    changes = get_all_changes(html_text_first, html_text_second)
 
-    week_type = get_web_week_type(html_text)
+    week_type = get_web_week_type(html_text_first)
     if week_type[0] == ERROR_WEB:
         return "Что-то пошло не так..."
     else:

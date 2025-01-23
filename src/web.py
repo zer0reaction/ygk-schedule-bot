@@ -3,8 +3,8 @@ from constants import *
 import requests
 from datetime import datetime
 
-# Get the raw html text
-def get_html_text():
+# Get the raw html text of the first
+def get_html_text_first():
     try:
         r = requests.get("https://menu.sttec.yar.ru/timetable/rasp_first.html")
         r.encoding = "utf-8"
@@ -14,10 +14,35 @@ def get_html_text():
         print("    {}".format(e))
         return (ERROR_WEB, )
 
-# Get data about all the changes
-def get_all_changes(html_text):
-    soup = BeautifulSoup(html_text, "html.parser")
+# Get the raw html text of the second
+def get_html_text_second():
+    try:
+        r = requests.get("https://menu.sttec.yar.ru/timetable/rasp_second.html")
+        r.encoding = "utf-8"
+        return (OK, r.text)
+    except Exception as e:
+        print("Error in web:get_html_text")
+        print("    {}".format(e))
+        return (ERROR_WEB, )
 
+# Get data about all the changes
+def get_all_changes(html_text_first, html_text_second):
+    soup = BeautifulSoup(html_text_first, "html.parser")
+    row_tags = soup.find_all("tr")[1:]
+    changes = []
+
+    for tag in row_tags:
+        contents = tag.find_all("td")
+        change = {
+            "group_name": contents[1].text,
+            "pair_number": contents[2].text,
+            "scheduled": contents[3].text,
+            "changed_to": contents[4].text,
+            "classroom": contents[5].text,
+        }
+        changes.append(change)
+
+    soup = BeautifulSoup(html_text_second, "html.parser")
     row_tags = soup.find_all("tr")[1:]
     changes = []
 
