@@ -28,6 +28,7 @@ CREATE TABLE "groups" (
 	"group_id"	INTEGER NOT NULL,
 	"group_name"	TEXT NOT NULL,
 	"file_name"	TEXT NOT NULL,
+	"type"	TEXT NOT NULL,
 	PRIMARY KEY("group_id" AUTOINCREMENT)
 );
 
