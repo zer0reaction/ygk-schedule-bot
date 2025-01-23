@@ -44,7 +44,6 @@ def get_all_changes(html_text_first, html_text_second):
 
     soup = BeautifulSoup(html_text_second, "html.parser")
     row_tags = soup.find_all("tr")[1:]
-    changes = []
 
     for tag in row_tags:
         contents = tag.find_all("td")

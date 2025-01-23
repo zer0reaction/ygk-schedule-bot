@@ -63,11 +63,10 @@ def get_changed_day_text(group_id: int) -> str:
     html_text_second = get_html_text_second()
     if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-    else:
-        html_text_first = html_text_first[1]
-        html_text_second = html_text_second[1]
 
-    date = get_web_date(html_text_first)
+    html_text_first = html_text_first[1]
+    html_text_second = html_text_second[1]
+
     changes = get_all_changes(html_text_first, html_text_second)
 
     week_type = get_web_week_type(html_text_first)
@@ -81,6 +80,15 @@ def get_changed_day_text(group_id: int) -> str:
         return "Что-то пошло не так..."
     group_row = group_row[1]
 
+    if group_row[3] == "first":
+        date = get_web_date(html_text_first)
+    elif group_row[3] == "second":
+        date = get_web_date(html_text_second)
+    else:
+        return "Что-то пошло не так..."
+
+    # TODO: fix potential bug
+    # file can be missing
     week_dict = []
     with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
@@ -100,7 +108,7 @@ def get_changed_day_text(group_id: int) -> str:
     day_dict = week_dict[day_name][week_type]
 
     for change in changes:
-        if change["group_name"] == group_row[1]:
+        if group_row[1] in change["group_name"]:
             pairs_string = change["pair_number"]
             pair_numbers = []
 
@@ -111,7 +119,7 @@ def get_changed_day_text(group_id: int) -> str:
                 for i in range(int(split[0]), int(split[1]) + 1):
                     pair_numbers.append(str(i))
             else:
-                pair_numbers.append(pairs_string)
+                pair_numbers.append(pairs_string.replace(' ', ''))
 
             for pair_number in pair_numbers:
                 try:
@@ -119,7 +127,10 @@ def get_changed_day_text(group_id: int) -> str:
                     day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
                     day_dict[pair_number][2] = change["classroom"]
                 except:
-                    return "Что-то пошло не так..."
+                    day_dict[pair_number] = ['', '', '']
+                    day_dict[pair_number][0] = change["changed_to"]
+                    day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
+                    day_dict[pair_number][2] = change["classroom"]
 
     text = f"<b>{date.day}.{date.month}.{date.year}</b>\n\n" + get_day_schedule_text(day_dict)
     return text
