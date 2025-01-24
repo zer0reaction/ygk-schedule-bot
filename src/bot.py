@@ -72,8 +72,10 @@ def reset(msg: Message):
     else: user_exists = user_exists[1]
 
     if user_exists:
-        delete_user(telegram_id)
-        bot.send_message(chat_id=telegram_id, text="Вы были удалены из базы данных")
+        if delete_user(telegram_id) == ERROR_DATABASE:
+            bot.send_message(chat_id=telegram_id, text="Произошла ошибка")
+            return
+        bot.send_message(chat_id=telegram_id, text="Вы были удалены из базы данных. Для продолжения введите /start")
     else:
         bot.send_message(chat_id=telegram_id, text="Вы не в базе данных")
 
