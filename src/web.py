@@ -58,6 +58,8 @@ def get_all_changes(html_text_first, html_text_second):
 
     return changes
 
+# TODO: fix potential bug
+# web date can crash
 # Get the date displayed on the website (datetime)
 def get_web_date(html_text):
     soup = BeautifulSoup(html_text, "html.parser")

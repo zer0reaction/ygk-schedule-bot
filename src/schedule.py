@@ -20,36 +20,40 @@ def get_day_schedule_text(day_dict: dict) -> str:
 
 # Returns formatted text of constant schedule
 def get_week_schedule_text(group_id: int) -> str:
-    filename = get_group_row(group_id)
-    if filename[0] == ERROR_DATABASE:
+    group_row = get_group_row(group_id)
+    if group_row[0] == ERROR_DATABASE:
         return "Что-то пошло не так..."
-    else: filename = filename[1][2]
+    else:
+        group_row = group_row[1]
 
+    # TODO: fix potential bug
+    # file can be missing
     week_dict = []
-    with open("./db/groups/" + filename, "r") as json_file:
+    with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
 
     html_text_first = get_html_text_first()
     html_text_second = get_html_text_second()
     if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-    else:
-        html_text_first = html_text_first[1]
-        html_text_second = html_text_second[1]
+    html_text_first = html_text_first[1]
+    html_text_second = html_text_second[1]
 
-    text = ""
-    # TODO: fix potential bug
-    # two pages update asynchronously
-    week_type = get_web_week_type(html_text_first)
+    if group_row[3] == "first":
+        week_type = get_web_week_type(html_text_first)
+    elif group_row[3] == "second":
+        week_type = get_web_week_type(html_text_second)
+    else:
+        return "Что-то пошло не так..."
+
     if week_type[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-    else:
-        week_type = week_type[1]
+    week_type = week_type[1]
 
     if week_type == "ch":
-        text += "<b>Числитель</b>\n\n"
+        text = "<b>Числитель</b>\n\n"
     elif week_type == "zn":
-        text += "<b>Знаменатель</b>\n\n"
+        text = "<b>Знаменатель</b>\n\n"
 
     text += "🔴Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
     text += "🟠Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
@@ -65,17 +69,10 @@ def get_changed_day_text(group_id: int) -> str:
     html_text_second = get_html_text_second()
     if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
         return "Что-то пошло не так..."
-
     html_text_first = html_text_first[1]
     html_text_second = html_text_second[1]
 
     changes = get_all_changes(html_text_first, html_text_second)
-
-    week_type = get_web_week_type(html_text_first)
-    if week_type[0] == ERROR_WEB:
-        return "Что-то пошло не так..."
-    else:
-        week_type = week_type[1]
 
     group_row = get_group_row(group_id)
     if group_row[0] == ERROR_DATABASE:
@@ -84,8 +81,16 @@ def get_changed_day_text(group_id: int) -> str:
 
     if group_row[3] == "first":
         date = get_web_date(html_text_first)
+        week_type = get_web_week_type(html_text_first)
+        if week_type[0] == ERROR_WEB:
+            return "Что-то пошло не так..."
+        week_type = week_type[1]
     elif group_row[3] == "second":
         date = get_web_date(html_text_second)
+        week_type = get_web_week_type(html_text_second)
+        if week_type[0] == ERROR_WEB:
+            return "Что-то пошло не так..."
+        week_type = week_type[1]
     else:
         return "Что-то пошло не так..."
 
@@ -144,5 +149,4 @@ def get_changed_day_text(group_id: int) -> str:
                     day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
                     day_dict[pair_number][2] = change["classroom"]
 
-    text = f"<b>Расписание на {date.day}.{date.month}.{date.year} ({day_display_name})</b>\n\n" + get_day_schedule_text(day_dict)
-    return text
+    return f"<b>Расписание на {date.day}.{date.month}.{date.year} ({day_display_name})</b>\n\n" + get_day_schedule_text(day_dict)
