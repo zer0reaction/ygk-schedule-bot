@@ -51,12 +51,12 @@ def get_week_schedule_text(group_id: int) -> str:
     elif week_type == "zn":
         text += "<b>Знаменатель</b>\n\n"
 
-    text += "📕Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
-    text += "📗Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
-    text += "📘Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
-    text += "📙Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
-    text += "📓Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
-    text += "📔Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
+    text += "🔴Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
+    text += "🟠Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
+    text += "🟡Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
+    text += "🟢Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
+    text += "🔵Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
+    text += "🟣Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
 
     return text
 
@@ -95,17 +95,27 @@ def get_changed_day_text(group_id: int) -> str:
     with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
 
-    day_name = ""
     match date.weekday():
-        case 0: day_name = "mon"
-        case 1: day_name = "tue"
-        case 2: day_name = "wed"
-        case 3: day_name = "thu"
-        case 4: day_name = "fri"
-        case 5: day_name = "sat"
-
-    if day_name == "":
-        return "Что-то пошло не так..."
+        case 0:
+            day_name = "mon"
+            day_display_name = "Понедельник"
+        case 1:
+            day_name = "tue"
+            day_display_name = "Вторник"
+        case 2:
+            day_name = "wed"
+            day_display_name = "Среда"
+        case 3:
+            day_name = "thu"
+            day_display_name = "Четверг"
+        case 4:
+            day_name = "fri"
+            day_display_name = "Пятница"
+        case 5:
+            day_name = "sat"
+            day_display_name = "Суббота"
+        case _:
+            return "Что-то пошло не так..."
 
     day_dict = week_dict[day_name][week_type]
 
@@ -134,5 +144,5 @@ def get_changed_day_text(group_id: int) -> str:
                     day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
                     day_dict[pair_number][2] = change["classroom"]
 
-    text = f"<b>{date.day}.{date.month}.{date.year}</b>\n\n" + get_day_schedule_text(day_dict)
+    text = f"<b>Расписание на {date.day}.{date.month}.{date.year} ({day_display_name})</b>\n\n" + get_day_schedule_text(day_dict)
     return text
