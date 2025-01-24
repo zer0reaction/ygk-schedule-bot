@@ -11,7 +11,7 @@ def get_html_text_first():
         return (OK, r.text)
     except Exception as e:
         print("Error in web:get_html_text")
-        print("    {}".format(e))
+        print(f"    {e}")
         return (ERROR_WEB, )
 
 # Get the raw html text of the second
@@ -22,7 +22,7 @@ def get_html_text_second():
         return (OK, r.text)
     except Exception as e:
         print("Error in web:get_html_text")
-        print("    {}".format(e))
+        print(f"    {e}")
         return (ERROR_WEB, )
 
 # Get data about all the changes
