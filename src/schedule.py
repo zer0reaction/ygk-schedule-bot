@@ -38,6 +38,8 @@ def get_week_schedule_text(group_id: int) -> str:
         html_text_second = html_text_second[1]
 
     text = ""
+    # TODO: fix potential bug
+    # two pages update asynchronously
     week_type = get_web_week_type(html_text_first)
     if week_type[0] == ERROR_WEB:
         return "Что-то пошло не так..."
@@ -49,12 +51,12 @@ def get_week_schedule_text(group_id: int) -> str:
     elif week_type == "zn":
         text += "<b>Знаменатель</b>\n\n"
 
-    text += "🗓Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
-    text += "🗓Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
-    text += "🗓Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
-    text += "🗓Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
-    text += "🗓Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
-    text += "🗓Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
+    text += "📕Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
+    text += "📗Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
+    text += "📘Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
+    text += "📙Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
+    text += "📓Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
+    text += "📔Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
 
     return text
 
