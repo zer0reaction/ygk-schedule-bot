@@ -55,12 +55,12 @@ def get_week_schedule_text(group_id: int) -> str:
     elif week_type == "zn":
         text = "<b>Знаменатель</b>\n\n"
 
-    text += "🔴Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
-    text += "🟠Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
-    text += "🟡Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
-    text += "🟢Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
-    text += "🔵Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
-    text += "🟣Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
+    text += "🔴 Понедельник\n" + get_day_schedule_text(week_dict["mon"][week_type]) + '\n'
+    text += "🟠 Вторник\n" +     get_day_schedule_text(week_dict["tue"][week_type]) + '\n'
+    text += "🟡 Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
+    text += "🟢 Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
+    text += "🔵 Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
+    text += "🟣 Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
 
     return text
 
