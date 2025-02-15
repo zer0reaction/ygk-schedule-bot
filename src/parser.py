@@ -18,7 +18,10 @@ for row in raw_data:
 
 # step 2: replace 'None's with numbers where needed
 for i in range(len(normalized_data) - 1):
-    if normalized_data[i][0] in range(10) and \
+    if str(normalized_data[i][0]) in [ 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота' ]:
+        continue
+
+    if int(normalized_data[i][0]) in range(10) and \
        normalized_data[i + 1][0] == None:
         normalized_data[i + 1][0] = normalized_data[i][0]
 
@@ -59,11 +62,12 @@ for row in normalized_data:
 
     if row[1] != None:
         week[day_key][row[4]][str(row[0])] = []
-        week[day_key][row[4]][str(row[0])].append(row[1])
-        week[day_key][row[4]][str(row[0])].append(row[2])
-        week[day_key][row[4]][str(row[0])].append(row[3])
+        week[day_key][row[4]][str(row[0])].append(str(row[1]).replace('\n', ', '))
+        week[day_key][row[4]][str(row[0])].append(str(row[2]).replace('\n', ', '))
+        week[day_key][row[4]][str(row[0])].append(str(row[3]).replace('\n', ', '))
 
 filename = input('Input file name: ')
+filename = './db/groups/' + filename
 
 with open(filename, 'w') as file:
     json.dump(week, file, ensure_ascii=False, indent=4)
