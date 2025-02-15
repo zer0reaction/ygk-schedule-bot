@@ -1,7 +1,7 @@
 import json
 import openpyxl as xl
 
-wb = xl.load_workbook('./test.xlsx')
+wb = xl.load_workbook('./file.xlsx')
 ws = wb.active
 
 raw_data = tuple(ws.values)
