@@ -1,37 +1,9 @@
+import openpyxl
 import json
-import openpyxl as xl
-
-wb = xl.load_workbook('./file.xlsx')
-ws = wb.active
-
-raw_data = tuple(ws.values)
-normalized_data = []
-
-# step 1: remove unnecesary 'None's
-for row in raw_data:
-    t = []
-    t.append(row[0])
-    t.append(row[1])
-    t.append(row[5])
-    t.append(row[8])
-    normalized_data.append(t)
-
-# step 2: replace 'None's with numbers where needed
-for i in range(len(normalized_data) - 1):
-    if str(normalized_data[i][0]) in [ 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота' ]:
-        continue
-
-    if int(normalized_data[i][0]) in range(10) and \
-       normalized_data[i + 1][0] == None:
-        normalized_data[i + 1][0] = normalized_data[i][0]
-
-# step 3: add ch zn
-for i in range(len(normalized_data) - 1):
-    if normalized_data[i][0] == normalized_data[i + 1][0]:
-        normalized_data[i].append('ch')
-        normalized_data[i + 1].append('zn')
+from openpyxl.cell.cell import MergedCell
 
 week = {
+    'name': '',
     'mon': { 'ch': {}, 'zn': {} },
     'tue': { 'ch': {}, 'zn': {} },
     'wed': { 'ch': {}, 'zn': {} },
@@ -40,7 +12,52 @@ week = {
     'sat': { 'ch': {}, 'zn': {} }
 }
 
-for row in normalized_data:
+wb = openpyxl.load_workbook('./file.xlsx')
+ws = wb.active
+
+data = []
+
+for row in ws.rows:
+    data.append([row[0], row[1], row[5], row[8]])
+
+for i, row in enumerate(data):
+    for j, cell in enumerate(row):
+        if type(cell) == MergedCell:
+            data[i][j] = 'Merged'
+        else:
+            data[i][j] = str(cell.value)
+
+group_name = data[0][0]
+data = data[2:]
+
+i = 0
+while i < len(data) - 1:
+    if data[i][0] in [str(x) for x in range(10)]:
+        data[i].append('ch')
+        data[i + 1].append('zn')
+        data[i + 1][0] = data[i][0]
+        i += 1
+    else:
+        data[i].append('day')
+    i += 1
+
+i = 0
+while i < len(data) - 1:
+    if data[i][-1] == 'day':
+        i += 1
+        continue
+
+    for j, cell in enumerate(data[i]):
+        if data[i][j] == 'Merged':
+            data[i][j] = data[i + 1][j]
+        elif data[i + 1][j] == 'Merged':
+            data[i + 1][j] = data[i][j]
+
+    i += 2
+
+week['name'] = group_name
+
+for row in data:
     if row[0] == 'Понедельник':
         day_key = 'mon'
         continue
@@ -60,14 +77,14 @@ for row in normalized_data:
         day_key = 'sat'
         continue
 
-    if row[1] != None:
-        week[day_key][row[4]][str(row[0])] = []
-        week[day_key][row[4]][str(row[0])].append(str(row[1]).replace('\n', ', '))
-        week[day_key][row[4]][str(row[0])].append(str(row[2]).replace('\n', ', '))
-        week[day_key][row[4]][str(row[0])].append(str(row[3]).replace('\n', ', '))
+    if not 'None' in row:
+        week[day_key][row[-1]][row[0]] = []
+        week[day_key][row[-1]][row[0]].append(row[1].replace('\n', ', '))
+        week[day_key][row[-1]][row[0]].append(row[2].replace('\n', ', '))
+        week[day_key][row[-1]][row[0]].append(row[3].replace('\n', ', '))
 
-filename = input('Input file name: ')
-filename = './db/groups/' + filename
 
-with open(filename, 'w') as file:
-    json.dump(week, file, ensure_ascii=False, indent=4)
+file_name = input('input file name (without .json): ')
+
+with open(file_name + '.json', 'w') as file:
+    json.dump(week, file, indent=4, ensure_ascii=False)
