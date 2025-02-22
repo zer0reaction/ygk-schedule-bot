@@ -85,6 +85,10 @@ for row in data:
 
 
 file_name = input('input file name (without .json): ')
+file_name += '.json'
+path = './db/groups/' + file_name
 
-with open(file_name + '.json', 'w') as file:
+with open(path, 'w') as file:
     json.dump(week, file, indent=4, ensure_ascii=False)
+
+print(f'{path} written')
