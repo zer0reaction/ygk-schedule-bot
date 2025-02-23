@@ -25,25 +25,11 @@ def get_html_text_second():
         print(f"    {e}")
         return (ERROR_WEB, )
 
-# Get data about all the changes
-def get_all_changes(html_text_first, html_text_second):
-    soup = BeautifulSoup(html_text_first, "html.parser")
+# Get data about the changes
+def get_changes(html_text):
+    soup = BeautifulSoup(html_text, "html.parser")
     row_tags = soup.find_all("tr")[1:]
     changes = []
-
-    for tag in row_tags:
-        contents = tag.find_all("td")
-        change = {
-            "group_name": contents[1].text,
-            "pair_number": contents[2].text,
-            "scheduled": contents[3].text,
-            "changed_to": contents[4].text,
-            "classroom": contents[5].text,
-        }
-        changes.append(change)
-
-    soup = BeautifulSoup(html_text_second, "html.parser")
-    row_tags = soup.find_all("tr")[1:]
 
     for tag in row_tags:
         contents = tag.find_all("td")

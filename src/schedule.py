@@ -1,6 +1,6 @@
 import json
 from database import get_user_group_id, get_group_row
-from web import get_html_text_first, get_html_text_second, get_web_date, get_all_changes, get_web_week_type
+from web import get_html_text_first, get_html_text_second, get_web_date, get_changes, get_web_week_type
 from datetime import datetime
 from constants import *
 
@@ -23,32 +23,25 @@ def get_week_schedule_text(group_id: int) -> str:
     group_row = get_group_row(group_id)
     if group_row[0] == ERROR_DATABASE:
         return "Что-то пошло не так..."
-    else:
-        group_row = group_row[1]
+    group_row = group_row[1]
 
     # TODO: fix potential bug
     # file can be missing
-    week_dict = []
     with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
 
     if group_row[3] == "first":
         html_text = get_html_text_first()
-        if html_text[0] == ERROR_WEB:
-            return "Что-то пошло не так..."
-        html_text = html_text[1]
-
-        week_type = get_web_week_type(html_text)
     elif group_row[3] == "second":
         html_text = get_html_text_second()
-        if html_text[0] == ERROR_WEB:
-            return "Что-то пошло не так..."
-        html_text = html_text[1]
-
-        week_type = get_web_week_type(html_text)
     else:
         return "Что-то пошло не так..."
 
+    if html_text[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    html_text = html_text[1]
+
+    week_type = get_web_week_type(html_text)
     if week_type[0] == ERROR_WEB:
         return "Что-то пошло не так..."
     week_type = week_type[1]
@@ -68,38 +61,39 @@ def get_week_schedule_text(group_id: int) -> str:
     return text
 
 def get_changed_day_text(group_id: int) -> str:
-    html_text_first = get_html_text_first()
-    html_text_second = get_html_text_second()
-    if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
-        return "Что-то пошло не так..."
-    html_text_first = html_text_first[1]
-    html_text_second = html_text_second[1]
-
-    changes = get_all_changes(html_text_first, html_text_second)
-
     group_row = get_group_row(group_id)
     if group_row[0] == ERROR_DATABASE:
         return "Что-то пошло не так..."
     group_row = group_row[1]
 
     if group_row[3] == "first":
-        date = get_web_date(html_text_first)
-        week_type = get_web_week_type(html_text_first)
-        if week_type[0] == ERROR_WEB:
-            return "Что-то пошло не так..."
-        week_type = week_type[1]
+        html_text = get_html_text_first()
     elif group_row[3] == "second":
-        date = get_web_date(html_text_second)
-        week_type = get_web_week_type(html_text_second)
-        if week_type[0] == ERROR_WEB:
-            return "Что-то пошло не так..."
-        week_type = week_type[1]
+        html_text = get_html_text_second()
     else:
         return "Что-то пошло не так..."
 
+    if html_text[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    html_text = html_text[1]
+
+    week_type = get_web_week_type(html_text)
+    if week_type[0] == ERROR_WEB:
+        return "Что-то пошло не так..."
+    week_type = week_type[1]
+
+    if week_type == "ch":
+        text = "<b>Числитель</b>\n\n"
+    elif week_type == "zn":
+        text = "<b>Знаменатель</b>\n\n"
+
+    changes = get_changes(html_text)
+    # TODO: fix potential bug
+    # date can be invalid or crash
+    date = get_web_date(html_text)
+
     # TODO: fix potential bug
     # file can be missing
-    week_dict = []
     with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
 
