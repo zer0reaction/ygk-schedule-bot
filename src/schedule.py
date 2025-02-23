@@ -32,17 +32,20 @@ def get_week_schedule_text(group_id: int) -> str:
     with open("./db/groups/" + group_row[2], "r") as json_file:
         week_dict = json.load(json_file)
 
-    html_text_first = get_html_text_first()
-    html_text_second = get_html_text_second()
-    if html_text_first[0] == ERROR_WEB or html_text_second[0] == ERROR_WEB:
-        return "Что-то пошло не так..."
-    html_text_first = html_text_first[1]
-    html_text_second = html_text_second[1]
-
     if group_row[3] == "first":
-        week_type = get_web_week_type(html_text_first)
+        html_text = get_html_text_first()
+        if html_text[0] == ERROR_WEB:
+            return "Что-то пошло не так..."
+        html_text = html_text[1]
+
+        week_type = get_web_week_type(html_text)
     elif group_row[3] == "second":
-        week_type = get_web_week_type(html_text_second)
+        html_text = get_html_text_second()
+        if html_text[0] == ERROR_WEB:
+            return "Что-то пошло не так..."
+        html_text = html_text[1]
+
+        week_type = get_web_week_type(html_text)
     else:
         return "Что-то пошло не так..."
 
