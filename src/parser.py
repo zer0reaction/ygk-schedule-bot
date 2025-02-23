@@ -27,7 +27,7 @@ for i, row in enumerate(data):
         else:
             data[i][j] = str(cell.value)
 
-group_name = data[0][0]
+week['name'] = data[0][0]
 data = data[2:]
 
 i = 0
@@ -36,10 +36,10 @@ while i < len(data) - 1:
         data[i].append('ch')
         data[i + 1].append('zn')
         data[i + 1][0] = data[i][0]
-        i += 1
+        i += 2
     else:
         data[i].append('day')
-    i += 1
+        i += 1
 
 i = 0
 while i < len(data) - 1:
@@ -54,8 +54,6 @@ while i < len(data) - 1:
             data[i + 1][j] = data[i][j]
 
     i += 2
-
-week['name'] = group_name
 
 for row in data:
     if row[0] == 'Понедельник':
