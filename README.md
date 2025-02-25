@@ -40,10 +40,12 @@ CREATE TABLE "users" (
 );
 ```
 
-Linux:
+Команды для создания окружения на Linux:
 ```console
 cd ygk-schedule-bot
-python -m venv ./
-bin/pip3 install telebot bs4 requests
-bin/python3 src/bot.py
+python3 -m venv ./.venv
+source ./.venv/bin/activate
+
+pip3 install telebot bs4 requests
+python3 ./src/bot.py
 ```
