@@ -92,6 +92,7 @@ def handle_callbacks(call: CallbackQuery):
         else: user_exists = user_exists[1]
 
         if not user_exists:
+            # TODO: if week_schedule fails, nothing gets displayed, but user gets in the database
             add_user(telegram_id, int(call.data.split('_')[1]))
             week_schedule(telegram_id, message_id)
             bot.answer_callback_query(call.id)

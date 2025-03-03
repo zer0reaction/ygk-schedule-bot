@@ -8,13 +8,17 @@ from constants import *
 def get_day_schedule_text(day_dict: dict) -> str:
     text = ""
     emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
+    keys = day_dict.keys()
 
-    for day_key in day_dict.keys():
-        text += emojis[int(day_key)]
-        text += " <b>[{}]</b> ".format(day_dict[day_key][2])
-        text += "<i>{}</i> ".format(day_dict[day_key][0])
-        text += "({})".format(day_dict[day_key][1])
-        text += '\n'
+    # TODO: this is not a good way to do it. needs to be sorted in the first place
+    for i in range(10):
+        day_key = str(i)
+        if day_key in keys:
+            text += emojis[int(day_key)]
+            text += " <b>[{}]</b> ".format(day_dict[day_key][2])
+            text += "<i>{}</i> ".format(day_dict[day_key][0])
+            text += "({})".format(day_dict[day_key][1])
+            text += '\n'
 
     return text
 
