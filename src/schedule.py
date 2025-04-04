@@ -60,7 +60,8 @@ def get_week_schedule_text(group_id: int) -> str:
     text += "🟡 Среда\n" +       get_day_schedule_text(week_dict["wed"][week_type]) + '\n'
     text += "🟢 Четверг\n" +     get_day_schedule_text(week_dict["thu"][week_type]) + '\n'
     text += "🔵 Пятница\n" +     get_day_schedule_text(week_dict["fri"][week_type]) + '\n'
-    text += "🟣 Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type])
+    text += "🟣 Суббота\n" +     get_day_schedule_text(week_dict["sat"][week_type]) + '\n'
+    text += f"[{group_row[1]}]"
 
     return text
 
@@ -151,4 +152,4 @@ def get_changed_day_text(group_id: int) -> str:
                     day_dict[pair_number][1] = "⚠️ЗАМЕНА⚠️"
                     day_dict[pair_number][2] = change["classroom"]
 
-    return f"<b>Расписание на {date.day}.{date.month}.{date.year} ({day_display_name})</b>\n\n" + get_day_schedule_text(day_dict)
+    return f"<b>Расписание на {date.day}.{date.month}.{date.year} ({day_display_name})</b>\n\n{get_day_schedule_text(day_dict)}\n[{group_row[1]}]"
